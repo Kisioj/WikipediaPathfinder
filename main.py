@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from bs4 import BeautifulSoup
-from collections import deque
 from urllib import parse
+import collections
+import re
 import requests
 import sys
 import time
@@ -13,7 +13,7 @@ class WikipediaPathfinder:
         self.start_word = start_word
         self.end_word = end_word
         self.history = {start_word: None}
-        self.queue = deque([start_word])
+        self.queue = collections.deque([start_word])
         self.request_id = 0
         self.start_time = None
         self.end_time = None
@@ -44,16 +44,16 @@ class WikipediaPathfinder:
         before = time.time()
         r = requests.get(url='https://en.wikipedia.org/wiki/{}'.format(word))
         start = time.time()
-        soup = BeautifulSoup(markup=r.text, features='html.parser')
-        for link in soup.find_all(name='a'):
-            href = link.get('href', '')
-            if href.startswith('/wiki/') and ':' not in href and '#' not in href:
-                href = parse.unquote_plus(href)[6:]
-                if href not in self.history:
-                    self.history[href] = word
-                    if href == self.end_word:
-                        return True
-                    self.queue.append(href)
+
+        pattern = re.compile(r'href="/wiki/([^:#"]+)"')
+        links = (parse.unquote_plus(href) for href in pattern.findall(r.text))
+        for href in links:
+            if href not in self.history:
+                self.history[href] = word
+                if href == self.end_word:
+                    return True
+                self.queue.append(href)
+
         end = time.time()
         req_time = start - before
         run_time = end - start
