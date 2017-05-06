@@ -27,11 +27,9 @@ class WikipediaPathfinder:
 
         chain = []
         word = self.end_word
-        while True:
+        while word is not None:
             chain.append(word)
             word = self.history[word]
-            if not word:
-                break
 
         chain.reverse()
         print('Run time: {:.2f}s'.format(run_time))
