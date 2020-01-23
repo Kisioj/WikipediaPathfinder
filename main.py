@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from urllib import parse
 import collections
 import re
@@ -9,7 +8,7 @@ import time
 
 
 class WikipediaPathfinder:
-    def __init__(self, start_word, end_word):
+    def __init__(self, start_word, end_word, lang):
         self.start_word = start_word
         self.end_word = end_word
         self.history = {start_word: None}
@@ -17,6 +16,7 @@ class WikipediaPathfinder:
         self.request_id = 0
         self.start_time = None
         self.end_time = None
+        self.lang = lang
 
     def search(self):
         self.start_time = time.time()
@@ -32,16 +32,18 @@ class WikipediaPathfinder:
             word = self.history[word]
 
         chain.reverse()
-        print('Run time: {:.2f}s'.format(run_time))
+        print(f'Run time: {run_time:.2f}s')
         print('Shortest path:', ' -> '.join(chain))
 
     def search_on_next_page(self):
         self.request_id += 1
         word = self.queue.popleft()
-        print(len(self.history), self.request_id, word)
-        before = time.time()
-        r = requests.get(url='https://en.wikipedia.org/wiki/{}'.format(word))
-        start = time.time()
+
+        debug_info = f'{len(self.history)}, {self.request_id}, {word}'
+
+        before_request_time = time.perf_counter()
+        r = requests.get(url=f'https://{self.lang}.wikipedia.org/wiki/{word}')
+        after_request_time = time.perf_counter()
 
         pattern = re.compile(r'href="/wiki/([^:#"]+)"')
         links = (parse.unquote_plus(href) for href in pattern.findall(r.text))
@@ -52,15 +54,17 @@ class WikipediaPathfinder:
                     return True
                 self.queue.append(href)
 
-        end = time.time()
-        req_time = start - before
-        run_time = end - start
-        print('request: {:.2f}s, code: request: {:.2f}s'.format(req_time, run_time))
+        after_extraction_time = time.perf_counter()
+
+        req_time = after_request_time - before_request_time
+        run_time = after_extraction_time - after_request_time
+        print(f'{debug_info}, request: {req_time:.2f}s, code: {run_time:.2f}s')
 
 
-def main(start_word='Brainfuck', end_word='Scanline_rendering'):
-    wp = WikipediaPathfinder(start_word, end_word)
+def main(start_word, end_word, lang='en'):
+    wp = WikipediaPathfinder(start_word, end_word, lang)
     wp.search()
+
 
 if __name__ == '__main__':
     main(*sys.argv[1:])
