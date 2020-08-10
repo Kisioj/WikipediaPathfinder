@@ -11,21 +11,21 @@ python3 main.py start_word end_word lang
 ```
 $ python3 main.py Słońce Ziemia pl
 ...
-Run time: 0.63s
+Run time: 0.25s
 Shortest path: Słońce -> Ziemia
 ```
 
 ```
 $ python3 main.py Polska Gustaw_III pl
 ...
-Run time: 27.30s
+Run time: 3.79s
 Shortest path: Polska -> Szwecja -> Gustaw_III
 ```
 
 ```
 $ python3 main.py Brainfuck Scanline_rendering en
 ...
-Run time: 264.00s
+Run time: 34.46s
 Shortest path: Brainfuck -> Programming_paradigm -> Computer_graphics -> Scanline_rendering
 ```
 

@@ -17,6 +17,7 @@ class WikipediaPathfinder:
         self.start_time = None
         self.end_time = None
         self.lang = lang
+        self.session = requests.Session()
 
     def search(self):
         self.start_time = time.time()
@@ -42,7 +43,7 @@ class WikipediaPathfinder:
         debug_info = f'{len(self.history)}, {self.request_id}, {word}'
 
         before_request_time = time.perf_counter()
-        r = requests.get(url=f'https://{self.lang}.wikipedia.org/wiki/{word}')
+        r = self.session.get(url=f'https://{self.lang}.wikipedia.org/wiki/{word}')
         after_request_time = time.perf_counter()
 
         pattern = re.compile(r'href="/wiki/([^:#"]+)"')
